@@ -1,5 +1,6 @@
 import React, { useState, createContext, useContext, useEffect } from "react";
 import { Sun, Moon } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion"; // Make sure framer-motion is installed
 import DeveloperProfile from "./Hero/Hero";
 import Projects from "./Projects/projects";
 import Skills from "./Skills/Skills";
@@ -29,7 +30,7 @@ function App() {
   }, []);
 
   const scrollToSection = (index) => {
-    const yOffset = -20; // Small offset to account for potential browser inconsistencies
+    const yOffset = -20;
     const element = document.getElementById(`section-${index}`);
     const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
 
@@ -45,46 +46,69 @@ function App() {
 
   return (
     <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
-      <div className={`transition-colors duration-300 ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
-      }`}>
-        <button
+      <div
+        className={`transition-colors duration-300 ${
+          isDarkMode
+            ? "bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900"
+            : "bg-gradient-to-br from-blue-100 via-white to-blue-100"
+        }`}
+      >
+        <motion.button
           onClick={toggleTheme}
           className={`fixed top-4 right-4 p-2 rounded-full z-20 ${
-            isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+            isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
           }`}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
         >
-          {isDarkMode ? (
-            <Sun className="w-6 h-6" />
-          ) : (
-            <Moon className="w-6 h-6" />
-          )}
-        </button>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={isDarkMode ? "moon" : "sun"}
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {isDarkMode ? (
+                <Sun className="w-6 h-6" />
+              ) : (
+                <Moon className="w-6 h-6" />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </motion.button>
+
         <nav className="fixed left-4 top-1/2 transform -translate-y-1/2 z-10">
           <ul>
             {sections.map((section, index) => (
-              <li key={index} className="mb-2">
-                <button
+              <motion.li key={index} className="mb-4">
+                <motion.button
                   onClick={() => scrollToSection(index)}
                   className={`w-3 h-3 rounded-full ${
                     activeSection === index
                       ? isDarkMode ? "bg-white" : "bg-gray-900"
                       : isDarkMode ? "bg-gray-600" : "bg-gray-400"
                   }`}
+                  whileHover={{ scale: 1.5 }}
+                  whileTap={{ scale: 0.9 }}
                   aria-label={section.name}
                 />
-              </li>
+              </motion.li>
             ))}
           </ul>
         </nav>
+
         {sections.map((section, index) => (
-          <section
+          <motion.section
             key={index}
             id={`section-${index}`}
             className="min-h-screen flex items-center justify-center p-4 snap-start"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
           >
             {section.component}
-          </section>
+          </motion.section>
         ))}
       </div>
     </ThemeContext.Provider>
